@@ -1,23 +1,44 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import { connect } from 'react-redux';
-import { fetchPost } from '../actions/index';
+import { fetchPost, deletePost } from '../actions/index';
 import { bindActionCreators } from 'redux';
+import { Link } from 'react-router';
 
 class PostsShow extends Component{
-    componentWillMount(){
-        this.props.fetchPost(this.props.params.id)
+    static contextTypes = {
+        router:PropTypes.object
     }
+
+    componentWillMount(){
+        this.props.fetchPost(this.props.params.id);
+            
+    }
+
+    onDeleteClick = () =>{
+        this.props.deletePost(this.props.params.id)
+            .then(()=>{
+                this.context.router.push("/")
+            });
+    } 
     render() {
-        if(!this.props.post){
+        const { post } = this.props;
+
+        if(!post){
             return (
                 <div>Loading...</div>
             )
         }
         return (           
             <div>
-                <h3>{this.props.post.title}</h3>
-                <h6>Categories: {this.props.post.categories}</h6>
-                <p>{this.props.post.content}</p>
+                <Link to="/">Back To Index</Link>
+                <button 
+                    className="btn btn-danger pull-xs-right"
+                    onClick={this.onDeleteClick}>
+                    Delete Post
+                </button>
+                <h3>{post.title}</h3>
+                <h6>Categories: {post.categories}</h6>
+                <p>{post.content}</p>
             </div>
         )
     }
@@ -31,7 +52,8 @@ const mapStateToProps = (state) =>{
 
 const mapDispatchToProps = (dispatch) =>{
     return {
-        fetchPost:bindActionCreators(fetchPost, dispatch)
+        fetchPost:bindActionCreators(fetchPost, dispatch),
+        deletePost:bindActionCreators(deletePost, dispatch)
     }
 }
 
